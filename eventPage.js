@@ -1,37 +1,25 @@
-var infobar_window = null;
-
 chrome.extension.onMessage.addListener(
   function(request, sender, sendResponse)
   {
-    if (infobar_window) {
-      showInfoBar(sender.tab,request);
-    }
-    else
-    {
-      showInfoBar(sender.tab,request,sendMessageToInfoBar);
-    }
+    showInfoBar(sender.tab,request);
   }
 );
 
-function sendMessageToInfoBar(msg) {
-  chrome.extension.sendMessage(null,msg);
-};
-
-//callback should send message to infobar
-function showInfoBar(tab,data,callback)
+function showInfoBar(tab,data)
 {
-  if (tab.id > 0) {
-    chrome.experimental.infobars.show(
-      {
-        tabId: tab.id,
-        path: "infobar.html"
-        //height: //( optional integer )
-      },
-      function (window) {
-        infobar_window = window;
-        console.debug("created infobar in", infobar_window);
-        callback && callback(data);
-      }
-    );
-  }
+  chrome.experimental.infobars.show(
+    {
+      tabId: tab.id,
+      path: "infobar.html"
+      //height: //( optional integer )
+    },
+    function (window) {
+      window.tab_id || (window.tab_id = tab.id);
+      window.port   || (window.port   = chrome.extension.connect({name: "infobar-"+tab.id}));
+
+      console.log("created infobar within tab: ",window.tab_id);
+
+      window.port.postMessage(data);
+    }
+  );
 };
