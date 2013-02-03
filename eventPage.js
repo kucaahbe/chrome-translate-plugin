@@ -1,21 +1,29 @@
+var ENABLED="enabled"
+var DISABLED="disabled"
+
 /* event listeners */
 
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
-  showInfoBar(sender.tab,request);
+  localStorage[sender.tab.id]==ENABLED && showInfoBar(sender.tab,request);
 });
 
 chrome.browserAction.onClicked.addListener(function(tab) {
-  toggleOnOff(tab);
+  toggleOnOff(tab.id);
 });
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-  console.log('tabs.onActivated',activeInfo);
-  turnOff();
+  var tabId = activeInfo.tabId;
+  //initialize settings for this tab:
+  localStorage[tabId] || (localStorage[tabId]=DISABLED);
+  (localStorage[tabId]==DISABLED ? setBadgeOff() : setBadgeOn());
 });
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-  // tabId -> remove it's translator state
-  // removeInfo.isWindowClosing == true -> remove all translator state
+  if (removeInfo.isWindowClosing) {
+    localStorage.clear();
+  } else {
+    localStorage.removeItem(tabId);
+  }
 });
 
 /* -------------- */
@@ -30,10 +38,10 @@ function showInfoBar(tab,data)
       //height: //( optional integer )
     },
     function (window) {
-      window.tab_id || (window.tab_id = tab.id);
+      window.tabId || (window.tabId = tab.id);
       window.port   || (window.port   = chrome.extension.connect({name: "infobar-"+tab.id}));
 
-      console.log("created infobar within tab: ",window.tab_id);
+      console.log("created infobar within tab: ",window.tabId);
 
       window.port.postMessage(data);
     }
@@ -42,8 +50,14 @@ function showInfoBar(tab,data)
 
 /* badge manipulation */
 
-function toggleOnOff() {
-  if (true) { turnOn(); } else { turnOff(); }
+function toggleOnOff(tabId) {
+  if (localStorage[tabId]==DISABLED) {
+    setBadgeOn();
+    localStorage[tabId]=ENABLED;
+  } else {
+    setBadgeOff();
+    localStorage[tabId]=DISABLED;
+  }
 };
 
 function setBadgeTextAndColor(text,color) {
@@ -51,6 +65,6 @@ function setBadgeTextAndColor(text,color) {
   chrome.browserAction.setBadgeBackgroundColor({color: color});
 };
 
-function turnOn(tab_id) { setBadgeTextAndColor("on","#F00"); };
+function setBadgeOn() { setBadgeTextAndColor("on","#F00"); };
 
-function turnOff(tab_id) { setBadgeTextAndColor("off","#D5D5D5"); };
+function setBadgeOff() { setBadgeTextAndColor("off","#D5D5D5"); };
