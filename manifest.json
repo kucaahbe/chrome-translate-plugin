@@ -12,6 +12,7 @@
   "default_locale": "en",
 
   "permissions": [
+    "http://translate.yandex.net/",
     "tabs",
     "experimental"
   ],
