@@ -16,6 +16,11 @@
     "experimental"
   ],
 
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_title": "YATranslate on/off"
+  },
+
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
