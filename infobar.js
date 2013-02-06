@@ -4,13 +4,12 @@ function updateTargetWord(target_word) {
   translateTargetWord(target_word);
 };
 
-function translateTargetWord(word) {
-  var YANDEX_API_URL = "http://translate.yandex.net/api/v1/tr.json/translate";
-  var query = [];
-  query.push("lang=en-ru");
-  query.push("text="+encodeURI(word));
-
-  var request = YANDEX_API_URL+"?"+query.join("&");
+/* API_ENDPOINT - String
+ * params - Array
+ * callback(parsed_response) - function
+ */
+function YandexAPIcall(API_ENDPOINT,params,callback) {
+  var request = API_ENDPOINT+"?"+params.join("&");
   console.debug(request);
 
   var xhr = new XMLHttpRequest();
@@ -19,10 +18,24 @@ function translateTargetWord(word) {
     if (xhr.readyState == 4) {
       var response = JSON.parse(xhr.responseText)
       console.log(response);
-      translated.value = response.text.join(" ");
+      callback(response);
     }
   };
   xhr.send();
+};
+
+function translateTargetWord(word,from_lang,to_lang) {
+  var YANDEX_API_URL = "http://translate.yandex.net/api/v1/tr.json/translate";
+  var query = [];
+  from_lang = "en";
+  to_lang   = "ru";
+
+  query.push("lang="+from_lang+"-"+to_lang);
+  query.push("text="+encodeURI(word));
+
+  YandexAPIcall(YANDEX_API_URL,query,function (response) {
+    translated.value = response.text.join(" ");
+  });
 };
 
 function reseiveMessageFromPort(port_name,tab_id,data) {
