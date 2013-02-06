@@ -20,7 +20,7 @@ function sendSelectionToTranslator() {
   selection = (selection == current_selection ? null : current_selection);
 
   if (makesSenseToSendSelection()) {
-    console.debug("selection: \"%s\" sent to translator", selection);
+    //console.debug("selection: \"%s\" sent to translator", selection);
 
     // send data to event page
     chrome.extension.sendMessage({
@@ -28,6 +28,6 @@ function sendSelectionToTranslator() {
     });
 
   } else {
-    console.debug("selection isn't text:", selection);
+    //console.debug("selection isn't text:", selection);
   }
 };
