@@ -1,4 +1,5 @@
 document.addEventListener("mouseup",sendSelectionToTranslator);
+document.addEventListener("keyup",sendSelectionToTranslator);
 
 var selection = null;
 
