@@ -4,23 +4,30 @@
     <meta charset="utf-8">
     <title></title>
     <style>
-      html {
-        height: 40px;
-      }
       body {
-        font-family: 'Open Sans', arial, sans-serif;
         display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-box-pack: center;
+        -webkit-box-orient: horizontal;
+        -webkit-box-pack: justify;
+        -webkit-box-align: center;
+      }
+      input {
+        width: 30em;
       }
     </style>
   </head>
   <body>
   <form>
-    <label for="word">Word:</label>
-    <input type="text" name="word" id="word" />
-    <label for="translated">Translated:</label>
-    <input type="text" name="translated" id="translated"/>
+    <select>
+      <option value="en">English</option>
+      <option value="ru">Русский</option>
+    </select><input type="text" name="word" id="word" />
+
+    <button>&harr;</button>
+
+    <select>
+      <option value="ru">Русский</option>
+      <option value="en">English</option>
+    </select><input type="text" name="translated" id="translated"/>
   </form>
   <script src="infobar.js"></script>
   </body>
