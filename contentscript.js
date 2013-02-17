@@ -1,33 +1,28 @@
-document.addEventListener("mouseup",sendSelectionToTranslator);
-document.addEventListener("keyup",sendSelectionToTranslator);
+var cached_selected = "";
 
-var selection = null;
+function sendSelectedToTranslator() {
 
-function makesSenseToSendSelection() {
-  if (typeof(selection) != "string") {
-    return false;
+  var current_selected = window.getSelection().toString();
+
+  // selection should be non-empty string:
+  if (typeof(current_selected) != "string" || current_selected.trim().length == 0) { return; }
+
+  if (cached_selected == current_selected) {
+    //prevent sending same selection, it is already translated
+    return;
+  } else {
+    cached_selected = current_selected;
   }
 
-  // removes blanks from start and end
-  selection = selection.trim();
-  // so only non-empty selection should go to translator
-  return (selection.length > 0);
-};
-
-function sendSelectionToTranslator() {
-
-  var current_selection = window.getSelection().toString();
-  selection = (selection == current_selection ? null : current_selection);
-
-  if (makesSenseToSendSelection()) {
-    //console.debug("selection: \"%s\" sent to translator", selection);
+  if (cached_selected.length > 0) {
+    var payload = { selection: cached_selected.trim() }
 
     // send data to event page
-    chrome.extension.sendMessage({
-      selection: selection
-    });
+    chrome.extension.sendMessage(payload);
 
-  } else {
-    //console.debug("selection isn't text:", selection);
+    //console.debug("selected: \"%s\" sent to translator", payload.selection);
   }
 };
+
+document.addEventListener("mouseup",sendSelectedToTranslator);
+document.addEventListener("keyup",  sendSelectedToTranslator);
