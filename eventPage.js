@@ -1,5 +1,5 @@
 var ENABLED="enabled"
-var DISABLED="disabled"
+    DISABLED="disabled";
 
 /* event listeners */
 
@@ -7,9 +7,7 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
   localStorage[sender.tab.id]==ENABLED && showInfoBar(sender.tab,request);
 });
 
-chrome.browserAction.onClicked.addListener(function(tab) {
-  toggleOnOff(tab.id);
-});
+chrome.browserAction.onClicked.addListener(toggleOnOff);
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   var tabId = activeInfo.tabId;
@@ -50,13 +48,13 @@ function showInfoBar(tab,data)
 
 /* badge manipulation */
 
-function toggleOnOff(tabId) {
-  if (localStorage[tabId]==DISABLED) {
+function toggleOnOff(tab) {
+  if (localStorage[tab.id]==DISABLED) {
     setBadgeOn();
-    localStorage[tabId]=ENABLED;
+    localStorage[tab.id]=ENABLED;
   } else {
     setBadgeOff();
-    localStorage[tabId]=DISABLED;
+    localStorage[tab.id]=DISABLED;
   }
 };
 
