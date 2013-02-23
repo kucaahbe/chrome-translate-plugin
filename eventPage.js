@@ -1,5 +1,6 @@
 var ENABLED="enabled"
-    DISABLED="disabled";
+    DISABLED="disabled"
+    YANDEX_API_URL = "http://translate.yandex.net/api/v1/tr.json/translate";
 
 /* event listeners */
 
@@ -37,6 +38,7 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 
 function contentScriptMessageHandler(data,tab_id) {
   if (localStorage[tab_id]==ENABLED) {
+    translate(data.selection);
     showInfoBar(tab_id);
   }
 };
@@ -53,9 +55,6 @@ function showInfoBar(tab_id)
     function (window) {
       var views=chrome.extension.getViews()
       console.debug(views);
-      views.forEach(function (view) {
-        console.log(view,view.created_at);
-      });
       console.debug("created infobar within tab: ",tab_id);
     }
   );
@@ -81,3 +80,40 @@ function setBadgeTextAndColor(text,color) {
 function setBadgeOn() { setBadgeTextAndColor("on","#F00"); };
 
 function setBadgeOff() { setBadgeTextAndColor("off","#D5D5D5"); };
+
+/* backgound translate */
+function translate(phrase) {
+
+  var query = [];
+  from_lang = "en";
+  to_lang   = "ru";
+
+  query.push("lang="+from_lang+"-"+to_lang);
+  query.push("text="+encodeURI(phrase));
+
+  console.info("sent \"%s\" to translator",phrase);
+  YandexAPIcall(query,function (response) {
+    var translated = response.text.join(" ");
+    console.info("\"%s\" -> \"%s\"",phrase,translated);
+  });
+};
+
+/*
+ * params - Array
+ * callback(parsed_response) - function
+ */
+function YandexAPIcall(params,callback) {
+  var request = YANDEX_API_URL+"?"+params.join("&");
+  console.debug(request);
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET",request,true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4) {
+      var response = JSON.parse(xhr.responseText)
+      console.debug('got response:',response);
+      callback(response);
+    }
+  };
+  xhr.send();
+};
