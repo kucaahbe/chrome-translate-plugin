@@ -1,25 +1,19 @@
-function updateTargetWord(target_word) {
-  console.log("target word:",target_word);
-  word.value = target_word;
-  translateTargetWord(target_word);
+function update_view(phrase,translated_phrase) {
+  word.value       = phrase;
+  translated.value = translated_phrase;
 };
 
-function reseiveMessageFromPort(port_name,tab_id,data) {
-  if (port_name == "infobar-"+tab_id) {
-    updateTargetWord(data.selection);
-  }
-};
+//window.onload=function() {
+var port=chrome.extension.connect({name:"infobar"});
 
-chrome.extension.onConnect.addListener(function(port) {
-  port.onMessage.addListener(function(data) {
-    if (window.tab_id) {
-      reseiveMessageFromPort(port.name,window.tab_id,data);
-    } else {
-      chrome.tabs.getCurrent(function (tab) {
-        console.log("tab id:",tab.id);
-        window.tab_id = tab.id;
-        reseiveMessageFromPort(port.name,window.tab_id,data);
-      });
-    }
-  });
+chrome.tabs.getCurrent(function(tab) {
+  port.postMessage({tabId: tab.id});
 });
+
+port.onMessage.addListener(function(data) {
+  update_view(
+    data.phrase,
+    data.translated
+  );
+});
+//};

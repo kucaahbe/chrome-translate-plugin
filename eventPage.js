@@ -1,5 +1,10 @@
+var InfobarSet = function() {}
+InfobarSet.prototype.add    = function(tab_id,port) { this[tab_id] = port; }
+InfobarSet.prototype.remove = function(tab_id) { delete this[tab_id]; }
+
 var ENABLED="enabled"
     DISABLED="disabled"
+    infobar_list = new InfobarSet()
     YANDEX_API_URL = "http://translate.yandex.net/api/v1/tr.json/translate";
 
 /* event listeners */
@@ -10,6 +15,10 @@ chrome.extension.onConnect.addListener(function(port) {
     switch(port.name) {
       case "cs":
         contentScriptMessageHandler(data,port.sender.tab.id);
+      case "infobar":
+        infobar_list.add(data.tabId,port);
+        updateInfobar(port);
+        break;
       break;
       default:
         console.error("unknown port name: ",port.name);
@@ -43,12 +52,25 @@ function contentScriptMessageHandler(data,tab_id) {
   if (localStorage[tab_id]==ENABLED) {
     translate(data.selection);
     showInfoBar(tab_id);
+    if (infobar_list[tab_id]) {
+      console.debug('updating infobar');
+      updateInfobar(infobar_list[tab_id]);
+    }
   }
 };
 
-/* shows infobar and creates uniquely named connection to it */
+function updateInfobar(port) {
+  port.postMessage({
+    phrase: "stub"+Math.random(),
+    translated: "заглушка"
+  });
+};
+
 function showInfoBar(tab_id)
 {
+  if (infobar_list[tab_id]) {
+    return;
+  }
   chrome.experimental.infobars.show(
     {
       tabId: tab_id,
@@ -56,8 +78,9 @@ function showInfoBar(tab_id)
       //height: //( optional integer )
     },
     function (window) {
-      var views=chrome.extension.getViews()
-      console.debug(views);
+      //var views=chrome.extension.getViews()
+      //console.debug(views);
+      //infobar_list.add(tab_id);
       console.debug("created infobar within tab: ",tab_id);
     }
   );
