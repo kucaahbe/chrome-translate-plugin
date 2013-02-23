@@ -3,8 +3,17 @@ var ENABLED="enabled"
 
 /* event listeners */
 
-chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
-  localStorage[sender.tab.id]==ENABLED && showInfoBar(sender.tab,request);
+// port listener, listens for messages from content script
+chrome.extension.onConnect.addListener(function(port) {
+  port.onMessage.addListener(function(data) {
+    switch(port.name) {
+      case "cs":
+        contentScriptMessageHandler(data,port.sender.tab.id);
+      break;
+      default:
+        console.error("unknown port name: ",port.name);
+    }
+  });
 });
 
 chrome.browserAction.onClicked.addListener(toggleOnOff);
@@ -26,22 +35,28 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 
 /* -------------- */
 
+function contentScriptMessageHandler(data,tab_id) {
+  if (localStorage[tab_id]==ENABLED) {
+    showInfoBar(tab_id);
+  }
+};
+
 /* shows infobar and creates uniquely named connection to it */
-function showInfoBar(tab,data)
+function showInfoBar(tab_id)
 {
   chrome.experimental.infobars.show(
     {
-      tabId: tab.id,
+      tabId: tab_id,
       path: "infobar.html"
       //height: //( optional integer )
     },
     function (window) {
-      window.tabId || (window.tabId = tab.id);
-      window.port   || (window.port   = chrome.extension.connect({name: "infobar-"+tab.id}));
-
-      console.log("created infobar within tab: ",window.tabId);
-
-      window.port.postMessage(data);
+      var views=chrome.extension.getViews()
+      console.debug(views);
+      views.forEach(function (view) {
+        console.log(view,view.created_at);
+      });
+      console.debug("created infobar within tab: ",tab_id);
     }
   );
 };

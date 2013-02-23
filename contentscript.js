@@ -1,4 +1,5 @@
 var cached_selected = "";
+var port = chrome.extension.connect({name: "cs"});
 
 function sendSelectedToTranslator() {
 
@@ -18,7 +19,7 @@ function sendSelectedToTranslator() {
     var payload = { selection: cached_selected.trim() }
 
     // send data to event page
-    chrome.extension.sendMessage(payload);
+    port.postMessage(payload);
 
     //console.debug("selected: \"%s\" sent to translator", payload.selection);
   }
