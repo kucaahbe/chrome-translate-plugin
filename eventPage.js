@@ -4,7 +4,7 @@ var ENABLED="enabled"
 
 /* event listeners */
 
-// port listener, listens for messages from content script
+/* port listener, listens for messages from content script */
 chrome.extension.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(data) {
     switch(port.name) {
@@ -17,20 +17,23 @@ chrome.extension.onConnect.addListener(function(port) {
   });
 });
 
+/* plugin button listener */
 chrome.browserAction.onClicked.addListener(toggleOnOff);
 
+/* tab activation listener */
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-  var tabId = activeInfo.tabId;
+  var tab_id = activeInfo.tabId;
   //initialize settings for this tab:
-  localStorage[tabId] || (localStorage[tabId]=DISABLED);
-  (localStorage[tabId]==DISABLED ? setBadgeOff() : setBadgeOn());
+  localStorage[tab_id] || (localStorage[tab_id]=DISABLED);
+  (localStorage[tab_id]==DISABLED ? setBadgeOff() : setBadgeOn());
 });
 
-chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+/* tab removal listener, removes settings from local storage */
+chrome.tabs.onRemoved.addListener(function(tab_id, removeInfo) {
   if (removeInfo.isWindowClosing) {
     localStorage.clear();
   } else {
-    localStorage.removeItem(tabId);
+    localStorage.removeItem(tab_id);
   }
 });
 
