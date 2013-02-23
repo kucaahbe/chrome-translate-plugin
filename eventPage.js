@@ -15,10 +15,10 @@ chrome.extension.onConnect.addListener(function(port) {
     switch(port.name) {
       case "cs":
         contentScriptMessageHandler(data,port.sender.tab.id);
+      break;
       case "infobar":
         infobar_list.add(data.tabId,port);
         updateInfobar(port);
-        break;
       break;
       default:
         console.error("unknown port name: ",port.name);
