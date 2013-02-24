@@ -42,6 +42,8 @@
       "eventPage/eventPage.js"
     ],
     "persistent": false
-  }
+  },
+
+  "options_page": "options/options.html"
 
 }
