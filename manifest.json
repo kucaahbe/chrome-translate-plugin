@@ -36,7 +36,10 @@
   ],
 
   "background": {
-    "scripts": ["eventPage.js"],
+    "scripts": [
+      "eventPage/translate.js",
+      "eventPage/eventPage.js"
+    ],
     "persistent": false
   }
 

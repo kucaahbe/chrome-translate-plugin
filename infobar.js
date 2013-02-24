@@ -10,10 +10,10 @@ chrome.tabs.getCurrent(function(tab) {
   port.postMessage({tabId: tab.id});
 });
 
-port.onMessage.addListener(function(data) {
+port.onMessage.addListener(function(translated) {
   update_view(
-    data.phrase,
-    data.translated
+    translated.text.original,
+    translated.text.translated
   );
 });
 //};

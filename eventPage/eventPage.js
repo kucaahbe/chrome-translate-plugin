@@ -4,8 +4,7 @@ InfobarSet.prototype.remove = function(tab_id) { delete this[tab_id]; }
 
 var ENABLED="enabled"
     DISABLED="disabled"
-    infobar_list = new InfobarSet()
-    YANDEX_API_URL = "http://translate.yandex.net/api/v1/tr.json/translate";
+    infobar_list = new InfobarSet();
 
 /* event listeners */
 
@@ -18,7 +17,7 @@ chrome.extension.onConnect.addListener(function(port) {
       break;
       case "infobar":
         infobar_list.add(data.tabId,port);
-        updateInfobar(port);
+        updateInfobar(port,{text:{}});
       break;
       default:
         console.error("unknown port name: ",port.name);
@@ -50,20 +49,22 @@ chrome.tabs.onRemoved.addListener(function(tab_id, removeInfo) {
 
 function contentScriptMessageHandler(data,tab_id) {
   if (localStorage[tab_id]==ENABLED) {
-    translate(data.selection);
     showInfoBar(tab_id);
-    if (infobar_list[tab_id]) {
-      console.debug('updating infobar');
-      updateInfobar(infobar_list[tab_id]);
-    }
+
+    var translate = new Translate();
+    translate.setText(data.selection);
+    translate.detectLang();
+    translate.getTranslate("ru",function () {
+      if (infobar_list[tab_id]) {
+        console.debug('updating infobar');
+        updateInfobar(infobar_list[tab_id],translate);
+      }
+    });
   }
 };
 
-function updateInfobar(port) {
-  port.postMessage({
-    phrase: "stub"+Math.random(),
-    translated: "заглушка"
-  });
+function updateInfobar(port,translated) {
+  port.postMessage(translated);
 };
 
 function showInfoBar(tab_id)
@@ -106,40 +107,3 @@ function setBadgeTextAndColor(text,color) {
 function setBadgeOn() { setBadgeTextAndColor("on","#F00"); };
 
 function setBadgeOff() { setBadgeTextAndColor("off","#D5D5D5"); };
-
-/* backgound translate */
-function translate(phrase) {
-
-  var query = [];
-  from_lang = "en";
-  to_lang   = "ru";
-
-  query.push("lang="+from_lang+"-"+to_lang);
-  query.push("text="+encodeURI(phrase));
-
-  console.info("sent \"%s\" to translator",phrase);
-  YandexAPIcall(query,function (response) {
-    var translated = response.text.join(" ");
-    console.info("\"%s\" -> \"%s\"",phrase,translated);
-  });
-};
-
-/*
- * params - Array
- * callback(parsed_response) - function
- */
-function YandexAPIcall(params,callback) {
-  var request = YANDEX_API_URL+"?"+params.join("&");
-  console.debug(request);
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET",request,true);
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4) {
-      var response = JSON.parse(xhr.responseText)
-      console.debug('got response:',response);
-      callback(response);
-    }
-  };
-  xhr.send();
-};
