@@ -80,6 +80,7 @@ module( "translate.getTranslate(to_lang,callback)", {
   teardown: function () {
     delete window.textValue;
     delete window.detected_lang;
+    delete window.to_lang;
   }
 });
 asyncTest( "doesn't change text.original", 1, function () {
