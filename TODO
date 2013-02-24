@@ -1,5 +1,5 @@
 current:
-* If you're using message passing, be sure to close unused message ports. The event page will not shut down until all message ports are closed.
+* If you're using message passing, be sure to close unused message ports. The event page will not shut down until all message ports are closed. (try port.disconnect(); port = null;)
 
 for future:
 add menu item for single translation invocation
