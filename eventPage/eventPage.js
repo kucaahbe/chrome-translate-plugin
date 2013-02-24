@@ -10,6 +10,7 @@ var ENABLED="enabled"
 
 /* port listener, listens for messages from content script */
 chrome.extension.onConnect.addListener(function(port) {
+
   port.onMessage.addListener(function(data) {
     switch(port.name) {
       case "cs":
@@ -21,6 +22,18 @@ chrome.extension.onConnect.addListener(function(port) {
       break;
       default:
         console.error("unknown port name: ",port.name);
+    }
+  });
+
+  port.onDisconnect.addListener(function (port) {
+    if (port.name=="infobar") {
+      for (p in infobar_list) {
+        if ( infobar_list[p].portId_ == port.portId_ ) {
+          infobar_list.remove(p);
+        }
+      }
+    } else {
+      console.error("port '%s' was disconnected",port.name);
     }
   });
 });
