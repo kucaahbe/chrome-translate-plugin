@@ -17,7 +17,7 @@ chrome.extension.onConnect.addListener(function(port) {
       break;
       case "infobar":
         infobar_list.add(data.tabId,port);
-        updateInfobar(port,{text:{}});
+        updateInfobar(data.tabId);
       break;
       default:
         console.error("unknown port name: ",port.name);
@@ -55,16 +55,29 @@ function contentScriptMessageHandler(data,tab_id) {
     translate.setText(data.selection);
     translate.detectLang();
     translate.getTranslate("ru",function () {
-      if (infobar_list[tab_id]) {
         console.debug('updating infobar');
-        updateInfobar(infobar_list[tab_id],translate);
-      }
+        updateInfobar(tab_id,translate);
     });
   }
 };
 
-function updateInfobar(port,translated) {
-  port.postMessage(translated);
+function updateInfobar(tab_id,translated) {
+  try {
+    infobar_list[tab_id].postMessage(new Translate());
+  } catch(e) {
+    if (!translated) {
+      return;
+    }
+  }
+
+  var interval_id = setInterval(function() {
+    if (infobar_list[tab_id]) {
+      infobar_list[tab_id].postMessage(translated);
+      clearInterval(interval_id);
+    } else {
+      console.debug("waiting for infobar to appear",tab_id);
+    }
+  }, 50);
 };
 
 function showInfoBar(tab_id)
