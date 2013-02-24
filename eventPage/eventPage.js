@@ -62,18 +62,26 @@ function contentScriptMessageHandler(data,tab_id) {
   }
 };
 
+// if port presents it sends data to infobar
+// if data does not present it sends empty data, this will notify infobar to switch into waiting state
+function sendToInfobar(port,translated) {
+  if (port) {
+    var data = translated||new Translate()
+    console.debug("sending to infobar:",data);
+    port.postMessage(data);
+    return true;
+  }
+  return false;
+};
+
 function updateInfobar(tab_id,translated) {
-  try {
-    infobar_list[tab_id].postMessage(new Translate());
-  } catch(e) {
-    if (!translated) {
-      return;
-    }
+  if ( sendToInfobar(infobar_list[tab_id],translated) ) {
+    return;
   }
 
   var interval_id = setInterval(function() {
     if (infobar_list[tab_id]) {
-      infobar_list[tab_id].postMessage(translated);
+      sendToInfobar(infobar_list[tab_id],translated);
       clearInterval(interval_id);
     } else {
       console.debug("waiting for infobar to appear",tab_id);

@@ -8,7 +8,7 @@ function update_input(input_el,value) {
     input_el.value = value;
     input_el.disabled = false;
   } else {
-    // if value undefined or null
+    // if value undefined or null -> waiting state
     input_el.disabled = true;
     input_el.value = "";
   }
