@@ -75,7 +75,7 @@ function showInfoBar(tab_id)
   chrome.experimental.infobars.show(
     {
       tabId: tab_id,
-      path: "infobar.html"
+      path: "infobar/infobar.html"
       //height: //( optional integer )
     },
     function (window) {
