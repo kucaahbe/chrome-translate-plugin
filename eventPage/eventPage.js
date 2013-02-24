@@ -32,6 +32,7 @@ chrome.browserAction.onClicked.addListener(toggleOnOff);
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   var tab_id = activeInfo.tabId;
   //initialize settings for this tab:
+  // event page is not persistent so storage is good idea to keep state of translator for each tab
   localStorage[tab_id] || (localStorage[tab_id]=DISABLED);
   (localStorage[tab_id]==DISABLED ? setBadgeOff() : setBadgeOn());
 });
