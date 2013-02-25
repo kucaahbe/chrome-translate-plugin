@@ -1,5 +1,4 @@
 current:
-* If your extension uses window.setTimeout() or window.setInterval(), switch to using the alarms API instead. DOM-based timers won't be honored if the event page shuts down.
 * If you're using message passing, be sure to close unused message ports. The event page will not shut down until all message ports are closed.
 
 for future:

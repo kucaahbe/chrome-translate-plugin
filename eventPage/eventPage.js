@@ -4,6 +4,7 @@ InfobarSet.prototype.remove = function(tab_id) { delete this[tab_id]; }
 
 var ENABLED="enabled"
     DISABLED="disabled"
+    INFOBAR_ALARM = "updateInfobarAlaram"
     infobar_list = new InfobarSet();
 
 /* event listeners */
@@ -92,14 +93,30 @@ function updateInfobar(tab_id,translated) {
     return;
   }
 
-  var interval_id = setInterval(function() {
-    if (infobar_list[tab_id]) {
-      sendToInfobar(infobar_list[tab_id],translated);
-      clearInterval(interval_id);
+  chrome.alarms.onAlarm.addListener(function(alarm) {
+    if (sendToInfobar(infobar_list[tab_id],translated)) {
+      chrome.alarms.clear(INFOBAR_ALARM);
     } else {
       console.debug("waiting for infobar to appear",tab_id);
     }
-  }, 50);
+  });
+
+  var check_interval = 50; //in milliseconds
+  chrome.alarms.create(INFOBAR_ALARM,{
+    when: Date.now()+(50/1000),
+    periodInMinutes: 50/1000/60
+  });
+
+  //chrome.alarms.getAll(function(alarms) { console.debug("ALARMS:",alarms) } )
+
+  //var interval_id = setInterval(function() {
+  //  if (infobar_list[tab_id]) {
+  //    sendToInfobar(infobar_list[tab_id],translated);
+  //    clearInterval(interval_id);
+  //  } else {
+  //    console.debug("waiting for infobar to appear",tab_id);
+  //  }
+  //}, 50);
 };
 
 function showInfoBar(tab_id)
