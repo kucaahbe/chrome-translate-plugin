@@ -6,6 +6,26 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    <form>
+      <fieldset>
+        <legend>Select languages you want to use:</legend>
+
+        <div>
+          <input type="checkbox" value="en" name="langs[]" id="lang-en" checked>
+          <label for="lang-en">English</label>
+        </div>
+
+        <div>
+          <input type="checkbox" value="ru" name="langs[]" id="lang-ru">
+          <label for="lang-ru">Русский</label>
+        </div>
+
+        <div>
+          <input type="checkbox" value="ua" name="langs[]" id="lang-ua">
+          <label for="lang-ua">Українська</label>
+        </div>
+      </fieldset>
+    </form>
     <script src="options.js"></script>
   </body>
 </html>
